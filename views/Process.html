@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <title>Резултат</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+    <div class="card">
+        <h2>Резултат:</h2>
+        <div style="font-size: 18px; margin-top: 15px;">
+            <p>Дадена буква: <span class="highlight">{givenLetter}</span> (Реден број: {position})</p>
+            <p>Очекувана буква: <span id="mainresult" class="highlight">{expectedLetter}</span></p>
+            <p>Внесена буква: <span id="userresult" class="highlight">{userLetter}</span></p>
+        </div>
+        
+        {nextButtonHtml}
+        <br>
+        <a href="/" class="btn-back">← Назад</a>
+    </div>
+</body>
+</html>

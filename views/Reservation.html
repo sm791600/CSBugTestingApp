@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Систем за Резервација</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body class="reservation-body">
+
+<div class="container" style="text-align: center;">
+    <h2>Изберете ја Вашата посакувана награда</h2>
+
+    <div class="button-group">
+        <button id="btnA" class="option-btn" onclick="selectOption('A')">А</button>
+        <button id="btnB" class="option-btn" onclick="selectOption('B')">Б</button>
+        <button id="btnC" class="option-btn" onclick="selectOption('C')">В</button>
+    </div>
+
+    <button id="reserveBtn" class="reserve-btn" disabled onclick="processReservation()">Резервирај</button>
+
+    <div id="statusSpinner" class="spinner">Се процесира...</div>
+    <p id="successMsg" class="success-message"></p>
+</div>
+
+<div id="checkoutCard" class="container" style="display: none;">
+    <h3>Податоци за достава</h3>
+    <form action="/queue-status" method="GET">
+        <div class="checkbox-group">
+            <input type="checkbox" id="robotCheck" required />
+            <label for="robotCheck">I am not a robot</label>
+        </div>
+
+        <div class="form-group">
+            <label for="fullName">Име и Презиме:</label>
+            <input type="text" id="fullName" required />
+        </div>
+
+        <div class="form-group">
+            <label for="address">Адреса:</label>
+            <input type="text" id="address" required />
+        </div>
+
+        <div class="form-group">
+            <label for="cardNumber">Број на кредитна картичка:</label>
+            <input type="text" id="cardNumber" required placeholder="XXXX-XXXX-XXXX-XXXX" />
+        </div>
+
+        <div class="form-group">
+            <label for="country">Држава:</label>
+            <select id="country" required>
+                <option value="">-- Изберете држава --</option>
+                <option value="US">Австралија</option>
+                <option value="DE">Германија</option>
+                <option value="US">САД</option>
+                <option value="MK">Македонија</option>
+                <option value="US">Шпанија</option>
+                <option value="US">Јапан</option>
+                <option value="US">Мексико</option>
+                <option value="US">Канада</option>
+                <option value="US">Казахстан</option>
+                <option value="US">Узбекистан</option>
+                <option value="US">Пуерто Рико</option>
+                <option value="US">Шри Ланка</option>
+                <option value="GB">Обединето Кралство</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Тип на испорака:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="shipping" value="standard" checked /> Standard shipping</label>
+                <label><input type="radio" name="shipping" value="express" /> Express shipping</label>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Потврди и продолжи</button>
+    </form>
+</div>
+
+<script>
+    // =================================================================
+    //  ПРОМЕНЛИВА ЗА ПРИКАЗ НА ТЕКСТОВИТЕ И БРОЈАЧИТЕ ПРИ ЧЕКАЊЕ
+    //  Поставете true за да се прикажуваат текстовите за чекање и тајмерите,
+    //  или false за да се прикажува само општ статус (или ништо).
+    // =================================================================
+    const showDelayTimers = false; 
+
+    let timerInterval = null;
+
+    function startCountdown(element, baseText, durationInSeconds) {
+        clearInterval(timerInterval);
+        let elapsed = 0;
+
+        const updateText = () => {
+            if (showDelayTimers) {
+                let remaining = Math.max(0, (durationInSeconds - elapsed)).toFixed(1);
+                element.innerText = `${baseText} (преостанува уште ~${remaining} сек. | изминаа ${elapsed.toFixed(1)} сек.)`;
+            } else {
+                element.innerText = "Се процесира...";
+            }
+        };
+
+        updateText();
+        timerInterval = setInterval(() => {
+            elapsed += 0.1;
+            updateText();
+        }, 100);
+    }
+
+    function stopCountdown() {
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+    }
+
+    function selectOption(option) {
+        const reserveBtn = document.getElementById('reserveBtn');
+        const spinner = document.getElementById('statusSpinner');
+        const successMsg = document.getElementById('successMsg');
+        const checkoutCard = document.getElementById('checkoutCard');
+
+        stopCountdown();
+        reserveBtn.disabled = true;
+        reserveBtn.classList.remove('enabled');
+        successMsg.style.display = 'none';
+        checkoutCard.style.display = 'none';
+        spinner.style.display = 'block';
+
+        // Текстот се формира со baseText кој се користи само ако showDelayTimers е true
+        const baseText = `Избрано: ${option}. Молиме почекајте...`;
+        startCountdown(spinner, baseText, 5.5);
+
+        fetch('/enable-reservation', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                stopCountdown();
+                spinner.style.display = 'none';
+                reserveBtn.disabled = false;
+                reserveBtn.classList.add('enabled');
+            });
+    }
+
+    function processReservation() {
+        const reserveBtn = document.getElementById('reserveBtn');
+        const spinner = document.getElementById('statusSpinner');
+        const successMsg = document.getElementById('successMsg');
+        const checkoutCard = document.getElementById('checkoutCard');
+
+        stopCountdown();
+        reserveBtn.disabled = true;
+        reserveBtn.classList.remove('enabled');
+        spinner.style.display = 'block';
+
+        // Текстот за резервација исто така зависи од showDelayTimers
+        const baseText = 'Се врши резервација, молиме почекајте...';
+        startCountdown(spinner, baseText, 6.5);
+
+        fetch('/make-reservation', { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                stopCountdown();
+                spinner.style.display = 'none';
+                successMsg.innerText = data.message;
+                successMsg.style.display = 'block';
+                checkoutCard.style.display = 'block';
+            });
+    }
+</script>
+
+</body>
+</html>

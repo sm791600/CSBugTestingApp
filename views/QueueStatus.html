@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="mk">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ред на чекање</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+
+<body>
+    <div class="card" style="text-align: center; max-width: 500px;">
+        <h2>Ве молиме почекајте, пред Вас се услужуваат уште:</h2>
+        <div class="queue-number" id="counterValue">--</div>
+        <div class="queue-unit">ЛУЃЕ</div>
+        <div class="queue-status" id="statusText"></div>
+    </div>
+
+    <script>
+        async function updateCounter() {
+            try {
+                const response = await fetch('/api/queue-data');
+                const data = await response.json();
+
+                const counterElement = document.getElementById('counterValue');
+
+                // 1. Форматирање на бројот со празно место на секои 3 цифри
+                // На пример: 2147483647 станува "2 147 483 647"
+                const formattedNumber = Number(data.counter).toLocaleString('fr-FR');
+
+                counterElement.innerText = formattedNumber;
+                document.getElementById('statusText').innerText = data.status;
+
+                // Проверка на вредноста на бројачот за менување боја
+                if (data.counter >= 0) {
+                    counterElement.style.color = "#dc3545"; // Црвена боја
+                } else {
+                    counterElement.style.color = "#0d6efd"; // Сина боја
+                }
+            } catch (err) {
+                console.error('Грешка при земање податоци', err);
+            }
+        }
+
+        // Повикување на секои 50ms
+        setInterval(updateCounter, 50);
+        updateCounter();
+
+        setInterval(updateCounter, 50);
+        updateCounter();
+    </script>
+</body>
+
+</html>

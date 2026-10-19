@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <title>Калкулатор за Индекс на Букви</title>
+    <link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+    <div class="card" style="text-align: center;">
+        <p>Погодете која буква е за 3 пати помала од редниот број на азбуката кој што е прикажан:</p>
+        <h3>Прикажана буква: <span id="givenLetterDisplay" class="highlight">{givenLetter}</span> (Реден број: <span id="randomPositionDisplay">{randomPosition}</span>)</h3>
+        
+        <form action="/process" method="POST">
+            <input type="hidden" name="randomPosition" value="{randomPosition}" />
+            
+            <div class="form-group">
+                <label for="letterInput">Внесете буква:</label>
+                <input type="text" id="letterInput" name="letterInput" maxlength="1" required />
+            </div>
+            
+            <button type="submit" class="btn-primary">Провери</button>
+        </form>
+    </div>
+</body>
+</html>
