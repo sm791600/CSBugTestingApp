@@ -39,7 +39,7 @@ app.MapGet("/", async (HttpContext context) =>
     <body>
         <div class='card'>
             <p>Погодете која буква е за 3 пати помала од редниот број на азбуката кој што е прикажан:</p>
-            <h3>Прикажана буква: <span id='givenLetterDisplay' class='highlight'>{givenLetter}</span> (Реден број: {randomPosition})</h3>
+            <h3>Прикажана буква: <span id='givenLetterDisplay' class='highlight'>{givenLetter}</span> (Реден број: <span id='randomPositionDisplay'>{randomPosition}</span>)</h3>
             
             <form action='/process' method='POST'>
                 <input type='hidden' name='randomPosition' value='{randomPosition}' />
